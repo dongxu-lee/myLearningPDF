@@ -17,12 +17,12 @@
     > 创建Resources类  方法：InputStream getResourcesAsStream(String path)
     
 2. 创建两个javaBean：【容器对象】：存放的就是对配置文件解析出来的内容
-    > Configuration：核心配置类：存放sqlMapConfig.xml解析出来的内容
+    > Configuration：核心配置类：存放sqlMapConfig.xml解析出来的内容<br>
     > MapperedStatement：映射配置类：存放mapper.xml解析出来的内容
 
 3. 解析
-    > 创建类：SqlSessionFactoryBuilder  方法：build(inputStream in)
-    > 第一：使用dom4j解析配置文件，把解析出的内容封装到容器对象中
+    > 创建类：SqlSessionFactoryBuilder  方法：build(inputStream in)<br>
+    > 第一：使用dom4j解析配置文件，把解析出的内容封装到容器对象中<br>
     > 第二：创建SqlSessionFactory对象；生产sqlSession：会话对象（<font color=red>工厂模式</font>）
 
 4. 创建SqlSessionFactory接口及实现类DefaultSqlSessionFactory

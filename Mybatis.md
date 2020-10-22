@@ -43,4 +43,79 @@
 2. 语雀文档地址：[https://www.yuque.com/bailihang-3fszp/bkgbrq/phfogm](https://www.yuque.com/bailihang-3fszp/bkgbrq/phfogm)
 
 
+## 第二部分 Mybatis基础回顾及高级应用
+### 1.1 Mybatis相关概念
+
+ORM：对象关系映射
+
+简介：Mybatis是一款基于ORM的半自动轻量级的持久层框架。
+
+
+### 1.2 Mybatis常用配置解析
+##### 1) environments标签
+
+```xml
+<environments default="development"> # --> default指定默认的环境名称
+    <environment id="development"> # --> id指定当前环境的名称
+        <transactionManager type="JDBC" /> # --> type=“JDBC” 指定事务管理类型是JDBC
+        <dataSource type="POOLED"> # --> 指定当前的数据源类型是连接池
+            <property name="driver" value="${jdbc.driver}" /> # --> 数据源配置的基本参数
+            <property name="url" value="${jdbc.url}" />
+            <property name="username" value="${jdbc.username}" />
+            <property name="password" value="${jdbc.password}" />
+        </dataSource>
+    </environment>
+</environments>
+```
+
+事务管理器transactionManager有两种：
+ - JDBC：依赖从数据源得到的连接来管理事务，即依赖数据库
+ - MANAGED：几乎什么也不做，由代码来实现事务整个过程
+
+数据源dataSource有三种：
+ - UNPOOLED：不使用连接池，每次请求都要建新的连接
+ - POOLED：使用JDBC连接池
+ - JNDI：为了能在EJB或应用服务器这类容器中使用
+
+
+##### 2) mapper标签
+ - 使用相对于类路径的资源引用
+```xml
+<mapper resource="com/ldx/AbcMapper.xml" />
+```
+
+ - 使用完全限定资源定位符（URL）
+```xml
+<mapper url="file:///var/Abc.xml" />
+```
+
+ - 使用映射器接口实现类的完全限定类名
+```xml
+<mapper class="com.ldx.AbcMapper" />
+```
+
+ - 将包内的映射器接口实现全部注册为映射器
+```xml
+<package name="com.ldx" />
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

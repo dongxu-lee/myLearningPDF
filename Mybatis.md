@@ -47,7 +47,6 @@
 ### 1.1 Mybatis相关概念
 
 ORM：对象关系映射
-
 简介：Mybatis是一款基于ORM的半自动轻量级的持久层框架。
 
 
@@ -83,17 +82,14 @@ ORM：对象关系映射
 ```xml
 <mapper resource="com/ldx/AbcMapper.xml" />
 ```
-
  - 使用完全限定资源定位符（URL）
 ```xml
 <mapper url="file:///var/Abc.xml" />
 ```
-
  - 使用映射器接口实现类的完全限定类名
 ```xml
 <mapper class="com.ldx.AbcMapper" />
 ```
-
  - 将包内的映射器接口实现全部注册为映射器
 ```xml
 <package name="com.ldx" />

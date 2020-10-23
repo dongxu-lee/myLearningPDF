@@ -96,10 +96,43 @@ ORM：对象关系映射
 <package name="com.ldx" />
 ```
 
+### 1.3 相关API
+```java
+//1.Resource工具类，配置文件的加载，把配置文件家在城字节输入流
+InputStream resourceAsStream = Resources.getResourceAsStream("sqlMapConfig.xml");
+//2.解析了配置文件，并创建了sqlSessionFactory工厂
+SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(resourceAsStream);
+//3.生产sqlSession。默认开是一个事务，但不会自动提交 
+//在进行增删改时，要手动提交事务，sqlSession.commit()
+//如果openSession使用openSession(true)参数，事务自动提交
+SqlSession sqlSession = sqlSessionFactory.openSession();
+sqlSession.close();
+//sqlSession.commit();
+```
 
+### 1.4 概念深入
 
+```
+在sqlMapConfig.xml的<configuration>标签中
+```
 
+##### 1) Properties 导入配置文件
 
+```xml
+<!-- 位置必须是标签里的第一位 -->
+<properties resource="jdbc.properties" />
+```
+
+##### 2) typeAliases 别名
+
+```xml
+<typeAliases>
+	<!-- 给单独的实体起别名 -->
+    <!-- <typeAlias type="com.ldx.pojo.User" alias="user"></typeAlias> -->
+    <!-- 批量起别名：该包下的所有类起别名，不区分大小写 -->
+    <package name="com.ldx.pojo"></package>
+</typeAliases>
+```
 
 
 

@@ -97,6 +97,7 @@ ORM：对象关系映射
 ```
 
 ### 1.3 相关API
+
 ```java
 //1.Resource工具类，配置文件的加载，把配置文件家在城字节输入流
 InputStream resourceAsStream = Resources.getResourceAsStream("sqlMapConfig.xml");
@@ -109,6 +110,7 @@ SqlSession sqlSession = sqlSessionFactory.openSession();
 sqlSession.close();
 //sqlSession.commit();
 ```
+
 
 ### 1.4 概念深入
 

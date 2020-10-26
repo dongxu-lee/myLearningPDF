@@ -1,4 +1,13 @@
 # Mybatis学习笔记
+
+### 代码及文档地址 
+代码地址：
+1. [https://github.com/dongxu-lee/IPersistence_Mybatis](https://github.com/dongxu-lee/IPersistence_Mybatis)
+
+文档地址：
+1. github文档地址：[https://github.com/dongxu-lee/myLearningPDF/blob/main/Mybatis.md](https://github.com/dongxu-lee/myLearningPDF/blob/main/Mybatis.md)
+2. 语雀文档地址：[https://www.yuque.com/bailihang-3fszp/bkgbrq/phfogm](https://www.yuque.com/bailihang-3fszp/bkgbrq/phfogm)
+
 ## 第一部分 自定义持久层框架
 ### 1.1 JDBC问题分析
 1. 数据库配置信息存在硬编码问题（解决：配置文件）
@@ -34,13 +43,6 @@
 6. 创建Executor接口及实现类SimpleExecutor实现类
     > 执行的就是JDBC代码
 
-### 代码及文档地址 
-代码地址：
-1. [https://github.com/dongxu-lee/IPersistence_Mybatis](https://github.com/dongxu-lee/IPersistence_Mybatis)
-
-文档地址：
-1. github文档地址：[https://github.com/dongxu-lee/myLearningPDF/blob/main/Mybatis.md](https://github.com/dongxu-lee/myLearningPDF/blob/main/Mybatis.md)
-2. 语雀文档地址：[https://www.yuque.com/bailihang-3fszp/bkgbrq/phfogm](https://www.yuque.com/bailihang-3fszp/bkgbrq/phfogm)
 
 
 ## 第二部分 Mybatis基础回顾及高级应用
@@ -213,8 +215,6 @@ Mybatis执行器，是Mybatis的核心，负责SQL动态语句的生成和查询
 > 代理方式：获取到的mapper对象都是代理对象，调用任何mapper方法，底层都是调用代理对象的invoke()方法
 
 
-### 设计模式代码地址
-[https://github.com/dongxu-lee/pattern](https://github.com/dongxu-lee/pattern)
 ### 1.3 设计模式--Builder构建者模式
 原理：使用多个简单对象一步一步构建成一个复杂的对象
 
@@ -265,7 +265,7 @@ private void parseConfiguration(XNode root) {
 
 
 
-### 1.4 设计模式--代理模式
+### 1.5 设计模式--代理模式
 原理：给某个对象提供一个代理，并由代理对象控制对原对象的引用。
 ##### 动态代理
 
@@ -276,7 +276,8 @@ private void parseConfiguration(XNode root) {
 ##### 静态代理
 
 
-
+### 设计模式代码地址
+[https://github.com/dongxu-lee/pattern](https://github.com/dongxu-lee/pattern)
 
 
 

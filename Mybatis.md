@@ -137,6 +137,43 @@ sqlSession.close();
 ```
 
 
+### 1.5 动态SQL
+```xml
+<!-- 动态之if -->
+<if test="id!=null">
+  id = #{id}
+</if>
+
+<!-- 动态之foreach -->
+<select id="findByIds" parameterType="list" resultType="user">
+    select * from user
+    <where>
+        <foreach collection="array" open="id in (" close=")" item="id" separator=",">
+            #{id}
+        </foreach>
+    </where>
+</select>
+```
+
+### 1.6 Mybatis缓存
+##### 一级缓存
+同一个sqlSession里，相同的sql查询，除第一次外的查询直接从缓存里获取数据。
+
+> 一、一级缓存到底是什么？
+> 答：一个HashMap成员变量
+> 二、一级缓存何时被创建？
+> 答：在执行器Executor中创建（方法createCacheKey()）
+> 三、createCacheKey方法何时调用？
+> 答：Executor的query方法中判断缓存是否有cacheKey，有就直接返回，没有则创建缓存
+
+
+##### 二级缓存
+二级缓存是基于mapper文件的namespace的，也就是多个sqlSession可以共享一个mapper中的二级缓存区域。如果两个mapper的namespace相同，两个mapper的sql查询也共享同一个二级缓存区域。
+
+
+
+### 1.7 Mybatis插件
+原理：拦截器
 
 
 

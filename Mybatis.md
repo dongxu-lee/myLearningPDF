@@ -176,6 +176,119 @@ sqlSession.close();
 原理：拦截器
 
 
+## 第三部分 Mybatis源码剖析
+
+### 1.1 层次结构
+##### 1) SqlSession
+作为Mybatis工作的顶层API接口，作为会话访问，完成增删改查功能
+
+##### 2) Executor
+Mybatis执行器，是Mybatis的核心，负责SQL动态语句的生成和查询缓存的维护
+
+##### 3) StatementHandler
+负责处理JDBC的Statement的交互，包括对Statement设置参数，以及将JDBC返回的resultSet结果集转换成List
+
+###### BoundSql-->MappedStatement(SqlSource、ResultMap)  in  Configuration
+
+##### 4.1) ParameterHandler （Mybatis-->JDBC）
+负责根据传递的参数值，对Statement对象设置参数
+
+##### 4.2) ResultSetHandler（JDBC-->Mbatis）
+负责将resultSet集合转换为List
+
+##### 5) TypeHandler<T>
+负责jdbcType与javaType之间的数据转换：
+1. 负责对Statement对象设置特定的参数；
+2. 对Statement返回的结果集resultSet，取出特定的列
+
+##### 6) ResultSet（JDBC）
+返回结果集
+
+###### Statement (PrepareStatement、SimpleStatement、CallableStatement)
+
+### 1.2 Mybatis实现方式
+1. 传统方式
+2. mapper代理方式：JDK动态代理
+
+> 代理方式：获取到的mapper对象都是代理对象，调用任何mapper方法，底层都是调用代理对象的invoke()方法
+
+
+### 设计模式代码地址
+[https://github.com/dongxu-lee/pattern](https://github.com/dongxu-lee/pattern)
+### 1.3 设计模式--Builder构建者模式
+原理：使用多个简单对象一步一步构建成一个复杂的对象
+
+
+在Mybatis中的应用：核心对象Configuration使用了XmlConfigBuilder来进行构造
+
+```java
+private void parseConfiguration(XNode root) {
+    try {
+      // issue #117 read properties first
+      propertiesElement(root.evalNode("properties"));
+      Properties settings = settingsAsProperties(root.evalNode("settings"));
+      loadCustomVfs(settings);
+      loadCustomLogImpl(settings);
+      typeAliasesElement(root.evalNode("typeAliases"));
+      pluginElement(root.evalNode("plugins"));
+      objectFactoryElement(root.evalNode("objectFactory"));
+      objectWrapperFactoryElement(root.evalNode("objectWrapperFactory"));
+      reflectorFactoryElement(root.evalNode("reflectorFactory"));
+      settingsElement(settings);
+      // read it after objectFactory and objectWrapperFactory issue #631
+      environmentsElement(root.evalNode("environments"));
+      databaseIdProviderElement(root.evalNode("databaseIdProvider"));
+      typeHandlerElement(root.evalNode("typeHandlers"));
+      mapperElement(root.evalNode("mappers"));
+    } catch (Exception e) {
+      throw new BuilderException("Error parsing SQL Mapper Configuration. Cause: " + e, e);
+    }
+  }
+```
+
+
+
+### 1.4 设计模式--工厂模式
+##### 简单工厂模式
+原理：对不同实例的创建做了一层封装，这些实例都有相同父类
+
+
+在Mybatis中的应用：Mybatis在核心接口SqlSession的创建过程用到了工厂模式
+
+##### 工厂方法模式
+原理：和简单工厂模式中工厂负责生产所有产品相比，工厂方法模式将生成具体产品的任务分发给具体的产品工厂
+
+
+##### 抽象工厂模式
+原理：和工厂方法模式相比，抽象工厂模式可以生产更多产品
+
+
+
+
+### 1.4 设计模式--代理模式
+原理：给某个对象提供一个代理，并由代理对象控制对原对象的引用。
+##### 动态代理
+
+
+在Mybatis中的应用：代理模式可以认为是Mybatis的核心模式，正是由于这个模式，我们只需要写mapper接口，就可以由Myabtis后台帮我们实现具体SQL的执行。
+> 当我们使用Configuration的getMapper方法是，会调用mapperRegistry.getMapper方法，而该方法又会调用mapperProxyFactory.newInstance(sqlSession)来生成一个具体的代理。
+
+##### 静态代理
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

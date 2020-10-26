@@ -46,14 +46,14 @@
 
 
 ## 第二部分 Mybatis基础回顾及高级应用
-### 1.1 Mybatis相关概念
+### 2.1 Mybatis相关概念
 
 ORM：对象关系映射
 
 简介：Mybatis是一款基于ORM的半自动轻量级的持久层框架。
 
 
-### 1.2 Mybatis常用配置解析
+### 2.2 Mybatis常用配置解析
 ##### 1) environments标签
 
 ```xml
@@ -98,7 +98,7 @@ ORM：对象关系映射
 <package name="com.ldx" />
 ```
 
-### 1.3 相关API
+### 2.3 相关API
 
 ```java
 //1.Resource工具类，配置文件的加载，把配置文件家在城字节输入流
@@ -114,7 +114,7 @@ sqlSession.close();
 ```
 
 
-### 1.4 概念深入
+### 2.4 概念深入
 
 ```
 在sqlMapConfig.xml的<configuration>标签中
@@ -139,7 +139,7 @@ sqlSession.close();
 ```
 
 
-### 1.5 动态SQL
+### 2.5 动态SQL
 ```xml
 <!-- 动态之if -->
 <if test="id!=null">
@@ -157,7 +157,7 @@ sqlSession.close();
 </select>
 ```
 
-### 1.6 Mybatis缓存
+### 2.6 Mybatis缓存
 ##### 一级缓存
 同一个sqlSession里，相同的sql查询，除第一次外的查询直接从缓存里获取数据。
 
@@ -174,13 +174,13 @@ sqlSession.close();
 
 
 
-### 1.7 Mybatis插件
+### 2.7 Mybatis插件
 原理：拦截器
 
 
 ## 第三部分 Mybatis源码剖析
 
-### 1.1 层次结构
+### 3.1 层次结构
 ##### 1) SqlSession
 作为Mybatis工作的顶层API接口，作为会话访问，完成增删改查功能
 
@@ -208,14 +208,14 @@ Mybatis执行器，是Mybatis的核心，负责SQL动态语句的生成和查询
 
 ###### Statement (PrepareStatement、SimpleStatement、CallableStatement)
 
-### 1.2 Mybatis实现方式
+### 3.2 Mybatis实现方式
 1. 传统方式
 2. mapper代理方式：JDK动态代理
 
 > 代理方式：获取到的mapper对象都是代理对象，调用任何mapper方法，底层都是调用代理对象的invoke()方法
 
 
-### 1.3 设计模式--Builder构建者模式
+### 3.3 设计模式--Builder构建者模式
 原理：使用多个简单对象一步一步构建成一个复杂的对象
 
 
@@ -248,7 +248,7 @@ private void parseConfiguration(XNode root) {
 
 
 
-### 1.4 设计模式--工厂模式
+### 3.4 设计模式--工厂模式
 ##### 简单工厂模式
 原理：对不同实例的创建做了一层封装，这些实例都有相同父类
 
@@ -265,7 +265,7 @@ private void parseConfiguration(XNode root) {
 
 
 
-### 1.5 设计模式--代理模式
+### 3.5 设计模式--代理模式
 原理：给某个对象提供一个代理，并由代理对象控制对原对象的引用。
 ##### 动态代理
 

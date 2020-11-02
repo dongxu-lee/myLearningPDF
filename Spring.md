@@ -6,7 +6,7 @@
 
 文档地址：
 1. github文档地址：[https://github.com/dongxu-lee/myLearningPDF/blob/main/Spring.md](https://github.com/dongxu-lee/myLearningPDF/blob/main/Spring.md)
-2. 语雀文档地址：[123](123)
+2. 语雀文档地址：[https://www.yuque.com/bailihang-3fszp/bkgbrq/zcg13k](https://www.yuque.com/bailihang-3fszp/bkgbrq/zcg13k)
 
 
 ## 第一部分 自定义Ioc&AOP框架
@@ -172,9 +172,156 @@ Spring中有两种bean，一种是普通bean，一种是工厂bean，FactoryBean
 ### 2.7 高级特性之后置处理器
 
 ## 第三部分 Spring AOP高级应用与源码剖析
-### 3.1
+### 3.1 AOP术语
+
+Joinpoint 连接点：可以用于把增强代码加入到业务主线中的点，这些点就是方法。
+
+Pointcut 切入点：哪些已经把增强代码加入到业务主线进来之后的连接点
+
+Advice 通知/增强：切面类中用于增强功能的方法
+
+Target 目标对象：被代理对象
+
+Proxy 代理：代理对象
+
+Weaving 织入：把增强应用到目标对象来创建新代理对象的过程
+
+Aspect 切面：增强代码定义在一个类里，这个类就是切面类
 
 
+### 3.2 纯xml
+~~~xml
+<!-- 横切逻辑bean -->
+<bean id="logUtils" class="com.ldx.utils.LogUtils">
+<!-- aspect = 锁定方法 + 锁定方法的特殊时机 + 横切逻辑 -->
+<aop:config>
+  <aop:aspect id="logAspect" ref="logUtils">
+
+	<!-- 切入点锁定方法，使用aspectj语法表达式 -->
+    <aop:pointcut id="pt1" expression="execution(public void com.ldx.service.impl.UserImpl(java.lang.String))">
+
+	<aop:before ... />
+	<aop:after ... />
+	<aop:after-returning ... />
+	<aop:after-throwing ... />
+    <aop:around method="arroundMethod" pointcut-ref="pt1" />
+  </aop:aspect>
+</aop:config>
+~~~
+
+### 3.3 半注解，半xml
+
+~~~xml
+<!-- 开启注解驱动 -->
+<apo:aspectj-autoproxy />
+~~~
+
+### 3.4 事务传播策略
+<B>PROPAGATION_xxx</B>
+
+REQUIRED  当前没有事务就创建一个事务，有就加入当前事务
+
+SUPPORTS 支持当前事务，如果当前没有事务，就以非事务方式执行
+
+MANDATORY 使用当前事务，如果没有抛异常
+
+REQUIRES_NEW 新建事务，如果存在当前事务，当前事务挂起
+
+NEVER 以非事务运行，有事务抛异常
+
+NESTED 如果当前存在事务，则嵌套事务内执行，如果当前没有事务，执行类似REQUIRED的操作
+
+
+### 3.5 声明式事务纯xml模式
+~~~xml
+<!-- 开启注解扫描，base-package指定扫描的包路径 -->
+<context:component-scan base-package="com.ldx.edu" />
+
+<!-- 引入外部资源文件 -->
+<context:property-placeholder location="classpath:jdbc.properties" />
+
+<!-- 第三方jar中的bean定义在xml中 -->
+<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+    <property name="driverClassName" value="${jdbc.driver}" />
+    <property name="url" value="${jdbc.url}" />
+    <property name="username" value="${jdbc.username}" />
+    <property name="password" value="${jdbc.password}" />
+</bean>
+
+<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+    <constructor-arg name="dataSource" ref="dataSource" />
+</bean>
+
+<!-- spring声明式事务配置，声明式事务就是一个aop -->
+<bean id="transactionManager" class="org.springframework.jdbc.dataSource.DataSourceTransactionManager">
+    <constructor-arg name="dataSource" ref="dataSource"></constructor-arg>
+</bean>
+
+<tx:advice id="txAdvice" transaction-manager="transactionManager">
+    <tx:attributes>
+    	<!-- 一般性配置 -->
+    	<tx:method name="*" read-only="false" propagation="REQUIRED" isolation="DEFAULT" timeout="-1" />
+    	<!-- 针对查询的覆盖性配置 -->
+    	<tx:method name="query*" read-only="true" propagation="SUPPORTS" />
+    </tx:attributes>
+</tx:advice>
+
+<aop:config>
+    <!-- advice-ref指向增强=横切逻辑+方位 -->
+    <aop:advisor advice-ref="txAdvice" pointcut="execution(* com.ldx.edu.service.impl.TransServiceImpl.*(..))">
+</aop:config>
+~~~
+
+### 3.6 声明式事务半注解及全注解
+##### 半注解
+~~~xml
+<!-- 开启注解扫描，base-package指定扫描的包路径 -->
+<context:component-scan base-package="com.ldx.edu" />
+
+<!-- 引入外部资源文件 -->
+<context:property-placeholder location="classpath:jdbc.properties" />
+
+<!-- 第三方jar中的bean定义在xml中 -->
+<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+    <property name="driverClassName" value="${jdbc.driver}" />
+    <property name="url" value="${jdbc.url}" />
+    <property name="username" value="${jdbc.username}" />
+    <property name="password" value="${jdbc.password}" />
+</bean>
+
+<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+    <constructor-arg name="dataSource" ref="dataSource" />
+</bean>
+
+<!-- spring声明式事务配置，声明式事务就是一个aop -->
+<bean id="transactionManager" class="org.springframework.jdbc.dataSource.DataSourceTransactionManager">
+    <constructor-arg name="dataSource" ref="dataSource"></constructor-arg>
+</bean>
+
+<!-- <tx:advice id="txAdvice" transaction-manager="transactionManager">
+    <tx:attributes>
+    	<!-- 一般性配置 -->
+    	<tx:method name="*" read-only="false" propagation="REQUIRED" isolation="DEFAULT" timeout="-1" />
+    	<!-- 针对查询的覆盖性配置 -->
+    	<tx:method name="query*" read-only="true" propagation="SUPPORTS" />
+    </tx:attributes>
+</tx:advice>
+
+<aop:config>
+    <!-- advice-ref指向增强=横切逻辑+方位 -->
+    <aop:advisor advice-ref="txAdvice" pointcut="execution(* com.ldx.edu.service.impl.TransServiceImpl.*(..))">
+</aop:config>-->
+
+<!-- 开启注解驱动 -->
+<tx:annotation-driven transaction-manager="transactionManager" />
+~~~
+
+配置上述xml后，在serviceImpl上使用@Transactional注解即可
+
+
+##### 纯注解
+
+在spring配置类上加@EnableTransactionManagement
 
 
 

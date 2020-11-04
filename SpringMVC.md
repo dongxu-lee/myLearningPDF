@@ -13,23 +13,23 @@
 ### 1.1 SpringMVC流程
 
 ### 1.2 SpringMVC九大组件
-##### HandlerMapping（处理器映射器）
+- HandlerMapping（处理器映射器）
 请求到达后，HandlerMapping找到请求对应的处理器Handler和Interceptor
-##### HandlerAdapter（处理器适配器）
+- HandlerAdapter（处理器适配器）
 让固定的Servlet处理方法调用Handler来进行处理
-##### HandlerExceptionResolver
+- HandlerExceptionResolver
 处理Handler产生的异常情况
-##### ViewResolver（视图解析器）
+- ViewResolver（视图解析器）
 解析视图
-##### RequestToViewNameTranslator
+- RequestToViewNameTranslator
 从请求中获取ViewName
-##### LocaleResolver
+- LocaleResolver
 从请求获取Locale
-##### ThemeResolver
+- ThemeResolver
 解析主题
-##### MultipartResolver
+- MultipartResolver
 上传请求
-##### FlashMapManager
+- FlashMapManager
 FlashMap可以用于重定向时携带参数，FlashMapManager用于管理FlashMap
 
 ### 1.3 url-pattern配置

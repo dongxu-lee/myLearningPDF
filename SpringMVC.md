@@ -2,11 +2,11 @@
 
 ### 代码及文档地址 
 代码地址：
-1. [123](123)
+1. [https://github.com/dongxu-lee/MVC_Spring](https://github.com/dongxu-lee/MVC_Spring)
 
 文档地址：
-1. github文档地址：[123](123)
-2. 语雀文档地址：[123](123)
+1. github文档地址：[https://github.com/dongxu-lee/myLearningPDF/blob/main/SpringMVC.md](https://github.com/dongxu-lee/myLearningPDF/blob/main/SpringMVC.md)
+2. 语雀文档地址：[https://www.yuque.com/bailihang-3fszp/bkgbrq/pgrrkt](https://www.yuque.com/bailihang-3fszp/bkgbrq/pgrrkt)
 
 
 ## 第一部分 SpringMVC基础回顾及其高级深入
@@ -189,299 +189,199 @@ public String handleRedircet(String name, RedirectAttributes redirectAttributes)
 
 
 
-## 第二部分 Spring IoC高级应用与源码剖析
-### 2.1 Spring IoC基础知识说明
-##### 1. 纯xml（bean信息定义全部配置在xml中）
-##### 2. xml+注解（部分在xml，部分用注解）
-上述两种的启动方式：
+## 第二部分 自定义MVC框架
+见代码地址
+## 第三部分 SpringMVC源码剖析及其SSM整合
+见代码地址
 
-JavaSE应用：
 
+## 第四部分 SpringData高级应用及其源码剖析
+
+### 4.1 Spring Data JPA介绍
+dao层框架，和Mybatis在使用方式和底层机制不同
+
+
+### 4.2 重要代码
+具体应用：见代码地址
 ~~~java
-ApplicationContext applicationContext = new ClassPathXmlApplicationContext("beans.xml");
-或者
-new FileSystemXmlApplicationContext("c:/beans.xml");
-~~~
+package com.ldx.dao;
 
-JavaWeb应用：
+import com.ldx.pojo.Resume;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 
-~~~java
-ContextLoaderListener(监听器去加载xml)
-~~~
+import java.util.List;
 
+/**
+ * JpaRepository<操作的实体类型，主键类型>，封装了CRUD
+ * JpaSpecificationExecutor<操作的实体类型>，封装了分页、排序等复杂查询
+ */
+public interface ResumeDao extends JpaRepository<Resume, Long>, JpaSpecificationExecutor<Resume> {
 
-##### 3. 纯注解
-启动方式：
+    //jpql查询
+    @Query("from Resume where id=?1") //注意此处操作的是实体类和属性，而不是表和字段
+    public Resume findByJpql(Long id);
 
-JavaSE应用：
+    @Query("from Resume where id=?1 and name=?2")
+    public Resume findByJpql2(Long id, String name);
 
-~~~java
-ApplicationContext applicationContext = new AnnotationConfigApplicationContext(SpringConfig.class);
-~~~
+    // 原生SQL查询
+    @Query(value = "select * from tb_resume where name like ?1 and address like ?2", nativeQuery = true)
+    public List<Resume> findBySql(String name, String address);
 
-JavaWeb应用：
+    /**
+     * 方法命名规则查询
+     * 方法名： findBy + 属性名（首字母大写） + 查询方式（模糊查询、等价查询，如果不写，默认等价）
+     */
+    public List<Resume> findByNameLike(String name);
 
-~~~java
-ContextLoaderListener(监听器去加载注解配置类)
-~~~
-
-### 2.2 BeanFactory和ApplicationContext的区别
-BeanFactory是顶层接口；
-
-ApplicationContext是BeanFactory的一个子接口。
-
-### 2.3 纯xml模式
-1. applicationContext.xml
-
-~~~xml
-<!-- Spring ioc 实例化Bean的三种方式 -->
-<!-- 方法一：使用无参构造器（推荐） -->
-<bean id="connectionUtils" class="com.ldx.utils.ConnectionUtils"></bean>
-~~~
-
-
-2. web.xml
-
-~~~xml
-<!-- 配置文件 -->
-<context-param>
-  <param-name>contextConfigLocation</param-name>
-  <param-value>classpath:applicationContext.xml</param-value>
-</context-param>
-<!-- 使用监听器启动Spring的IoC容器 -->
-<listen>
-  <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-</listen>
-~~~
-
-3. MyServlet.java 自定义servlet
-
-~~~java
-public class MyServlet extends HttpServlet {
-    private UserService userService = null;
-	@Override
-	public void init() throws ServletException {
-		WebApplicationContext webApplicationContext = WebApplicationContextUtils.getWebApplicationContext(this.getServletContext());
-		ProxyFactory proxyFactory proxyFactory = (ProxyFactory) webApplicationContext.getBean("proxyFactory");
-		UserService userService = (UserService) proxyFactory.getJdkProxy(wenApplicationContext.getBean("userService"));
-	}
 }
+
+
+
 ~~~
-
-
-### 2.4 Bean创建的方式以及Bean标签属性
-##### Spring实例化Bean的三种方式
-~~~xml
-<!-- Spring ioc 实例化Bean的三种方式 -->
-<!-- 方法一：使用无参构造器（推荐） -->
-<bean id="connectionUtils" class="com.ldx.utils.ConnectionUtils"></bean>
-
-<!-- 另外两种方式是为了我们自己new的对象加入到IOC管理 -->
-<!-- 方法二：静态方法 -->
-<bean id="connectionUtils" class="com.ldx.factory.CreateBeanFactory" factory-method="getInstanceStatic"></bean>
-
-<!-- 方法三：实例化方法 -->
-<bean id="createBeanFactory" class="com.ldx.factory.CreateBeanFactory"></bean>
-<bean id="connectionUtils" factory-bean="createBeanFactory" factory-method="getInstance"></bean>
-~~~
-
 
 ~~~java
-public class CreateBeanFactory {
+import com.ldx.dao.ResumeDao;
+import com.ldx.pojo.Resume;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-	//1.无参构造
-	public CreateBeanFactory() {}
-	//2.静态方法
-	public static CreateBeanFactory  getInstanceStatic() {
-		return new CreateBeanFactory();
-	}
+import javax.persistence.criteria.*;
+import java.util.List;
+import java.util.Optional;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = {"classpath:applicationContext.xml"})
+public class ResumeDaoTest {
+
+    @Autowired
+    private ResumeDao resumeDao;
+
+    /**
+     * --------针对查询的使用进行分析----
+     * 方式一：调用集成的接口中的方法   findById(),findOne()
+     * 方式二：引入jpql（jpa查询语言）
+     * 方式三：引入原生sql
+     * 方式四：在接口自定义方法，使用方法命名规则查询
+     * 方式五：动态查询--service传入dao的条件不确定，把service条件封装为specification，传给dao
+     *
+     */
+
+
+    @Test
+    public void testFindById() {
+        Optional<Resume> optional = resumeDao.findById(1L);
+        Resume resume = optional.get();
+        System.out.println(resume);
+    }
+
+    @Test
+    public void testFindByJpql() {
+        Resume jpql = resumeDao.findByJpql(1L);
+        System.out.println(jpql);
+    }
+
+    @Test
+    public void testFindBySql() {
+        List<Resume> list = resumeDao.findBySql("李%", "上海%");
+        for (int i = 0; i < list.size(); i++) {
+            Resume resume = list.get(i);
+            System.out.println(resume);
+        }
+    }
+
+    // 测试排序
+    @Test
+    public void testSort() {
+        Sort sort = new Sort(Sort.Direction.DESC, "id");
+        List<Resume> list = resumeDao.findAll(sort);
+        for (int i = 0; i < list.size(); i++) {
+            Resume resume = list.get(i);
+            System.out.println(resume);
+        }
+    }
+
+    // 测试分页
+    @Test
+    public void testPage() {
+        Pageable pageable = PageRequest.of(0, 2);
+        Page<Resume> all = resumeDao.findAll(pageable);
+        System.out.println(all);
+    }
+
+    @Test
+    public void testMethdoName() {
+        List<Resume> list = resumeDao.findByNameLike("李%");
+        for (int i = 0; i < list.size(); i++) {
+            Resume resume = list.get(i);
+            System.out.println(resume);
+        }
+    }
+
+    // 动态查询，指定单个条件
+    @Test
+    public void testSpecfication() {
+
+        Specification<Resume> specification = new Specification<Resume>() {
+            @Override
+            public Predicate toPredicate(Root<Resume> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+                // 获取name属性
+                Path<Object> name = root.get("name");
+
+                // 使用CriteriaBuilder针对name属性构建条件
+                Predicate predicate = criteriaBuilder.equal(name, "张三");
+
+                return predicate;
+            }
+        };
+
+        Optional<Resume> optional = resumeDao.findOne(specification);
+        Resume resume = optional.get();
+        System.out.println(resume);
+    }
+
+
+    // 动态查询，指定多个条件
+    @Test
+    public void testSpecfications() {
+
+        Specification<Resume> specification = new Specification<Resume>() {
+            @Override
+            public Predicate toPredicate(Root<Resume> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+
+                Path<Object> name = root.get("name");
+                Path<Object> address = root.get("address");
+
+                // 使用CriteriaBuilder针对name属性构建条件
+                Predicate predicate1 = criteriaBuilder.equal(name, "张三");
+                Predicate predicate2 = criteriaBuilder.like(address.as(String.class), "北%");
+
+                //组合两个条件
+                Predicate and = criteriaBuilder.and(predicate1, predicate2);
+
+                return and;
+            }
+        };
+
+        Optional<Resume> optional = resumeDao.findOne(specification);
+        Resume resume = optional.get();
+        System.out.println(resume);
+    }
+
+
 }
+
 ~~~
-
-##### Bean的作用范围
-~~~xml
-<bean scope="singleton" />
-~~~
-singleton：到哪里，IOC容器中只有一个该对象，默认为singleton
-
-prototype：原型（多例），每次都新建对象，Spring只创建对象，不管理对象
-
-##### bean的其他属性
-~~~xml
-<bean init-method="init" destory-method="destory" />
-~~~
-
-
-### 2.5 高级特性之lazy-init延迟加载
-ApplicationContext默认启动服务器时对所有bean进行实例化
-
-延迟加载是在第一次向容器getBean时实例化的
-~~~xml
-<bean id="" class="" lazy-init="true" />
-~~~
-
-
-### 2.6 高级特性之FactoryBean
-##### FactoryBean和BeanFactory
-
-BeanFactory接口是容器的顶级接口，定义了容器的一些基础行为。
-
-Spring中有两种bean，一种是普通bean，一种是工厂bean，FactoryBean可以生成某一个类型的bean实例，也就是说我们可以借助它实现自定义bean的创建过程。
-
-### 2.7 高级特性之后置处理器
-
-## 第三部分 Spring AOP高级应用与源码剖析
-### 3.1 AOP术语
-
-Joinpoint 连接点：可以用于把增强代码加入到业务主线中的点，这些点就是方法。
-
-Pointcut 切入点：哪些已经把增强代码加入到业务主线进来之后的连接点
-
-Advice 通知/增强：切面类中用于增强功能的方法
-
-Target 目标对象：被代理对象
-
-Proxy 代理：代理对象
-
-Weaving 织入：把增强应用到目标对象来创建新代理对象的过程
-
-Aspect 切面：增强代码定义在一个类里，这个类就是切面类
-
-
-### 3.2 纯xml
-~~~xml
-<!-- 横切逻辑bean -->
-<bean id="logUtils" class="com.ldx.utils.LogUtils">
-<!-- aspect = 锁定方法 + 锁定方法的特殊时机 + 横切逻辑 -->
-<aop:config>
-  <aop:aspect id="logAspect" ref="logUtils">
-
-	<!-- 切入点锁定方法，使用aspectj语法表达式 -->
-    <aop:pointcut id="pt1" expression="execution(public void com.ldx.service.impl.UserImpl(java.lang.String))">
-
-	<aop:before ... />
-	<aop:after ... />
-	<aop:after-returning ... />
-	<aop:after-throwing ... />
-    <aop:around method="arroundMethod" pointcut-ref="pt1" />
-  </aop:aspect>
-</aop:config>
-~~~
-
-### 3.3 半注解，半xml
-
-~~~xml
-<!-- 开启注解驱动 -->
-<apo:aspectj-autoproxy />
-~~~
-
-### 3.4 事务传播策略
-<B>PROPAGATION_xxx</B>
-
-REQUIRED  当前没有事务就创建一个事务，有就加入当前事务
-
-SUPPORTS 支持当前事务，如果当前没有事务，就以非事务方式执行
-
-MANDATORY 使用当前事务，如果没有抛异常
-
-REQUIRES_NEW 新建事务，如果存在当前事务，当前事务挂起
-
-NEVER 以非事务运行，有事务抛异常
-
-NESTED 如果当前存在事务，则嵌套事务内执行，如果当前没有事务，执行类似REQUIRED的操作
-
-
-### 3.5 声明式事务纯xml模式
-~~~xml
-<!-- 开启注解扫描，base-package指定扫描的包路径 -->
-<context:component-scan base-package="com.ldx.edu" />
-
-<!-- 引入外部资源文件 -->
-<context:property-placeholder location="classpath:jdbc.properties" />
-
-<!-- 第三方jar中的bean定义在xml中 -->
-<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
-    <property name="driverClassName" value="${jdbc.driver}" />
-    <property name="url" value="${jdbc.url}" />
-    <property name="username" value="${jdbc.username}" />
-    <property name="password" value="${jdbc.password}" />
-</bean>
-
-<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
-    <constructor-arg name="dataSource" ref="dataSource" />
-</bean>
-
-<!-- spring声明式事务配置，声明式事务就是一个aop -->
-<bean id="transactionManager" class="org.springframework.jdbc.dataSource.DataSourceTransactionManager">
-    <constructor-arg name="dataSource" ref="dataSource"></constructor-arg>
-</bean>
-
-<tx:advice id="txAdvice" transaction-manager="transactionManager">
-    <tx:attributes>
-    	<!-- 一般性配置 -->
-    	<tx:method name="*" read-only="false" propagation="REQUIRED" isolation="DEFAULT" timeout="-1" />
-    	<!-- 针对查询的覆盖性配置 -->
-    	<tx:method name="query*" read-only="true" propagation="SUPPORTS" />
-    </tx:attributes>
-</tx:advice>
-
-<aop:config>
-    <!-- advice-ref指向增强=横切逻辑+方位 -->
-    <aop:advisor advice-ref="txAdvice" pointcut="execution(* com.ldx.edu.service.impl.TransServiceImpl.*(..))">
-</aop:config>
-~~~
-
-### 3.6 声明式事务半注解及全注解
-##### 半注解
-~~~xml
-<!-- 开启注解扫描，base-package指定扫描的包路径 -->
-<context:component-scan base-package="com.ldx.edu" />
-
-<!-- 引入外部资源文件 -->
-<context:property-placeholder location="classpath:jdbc.properties" />
-
-<!-- 第三方jar中的bean定义在xml中 -->
-<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
-    <property name="driverClassName" value="${jdbc.driver}" />
-    <property name="url" value="${jdbc.url}" />
-    <property name="username" value="${jdbc.username}" />
-    <property name="password" value="${jdbc.password}" />
-</bean>
-
-<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
-    <constructor-arg name="dataSource" ref="dataSource" />
-</bean>
-
-<!-- spring声明式事务配置，声明式事务就是一个aop -->
-<bean id="transactionManager" class="org.springframework.jdbc.dataSource.DataSourceTransactionManager">
-    <constructor-arg name="dataSource" ref="dataSource"></constructor-arg>
-</bean>
-
-<!-- <tx:advice id="txAdvice" transaction-manager="transactionManager">
-    <tx:attributes>
-    	<!-- 一般性配置 -->
-    	<tx:method name="*" read-only="false" propagation="REQUIRED" isolation="DEFAULT" timeout="-1" />
-    	<!-- 针对查询的覆盖性配置 -->
-    	<tx:method name="query*" read-only="true" propagation="SUPPORTS" />
-    </tx:attributes>
-</tx:advice>
-
-<aop:config>
-    <!-- advice-ref指向增强=横切逻辑+方位 -->
-    <aop:advisor advice-ref="txAdvice" pointcut="execution(* com.ldx.edu.service.impl.TransServiceImpl.*(..))">
-</aop:config>-->
-
-<!-- 开启注解驱动 -->
-<tx:annotation-driven transaction-manager="transactionManager" />
-~~~
-
-配置上述xml后，在serviceImpl上使用@Transactional注解即可
-
-
-##### 纯注解
-
-在spring配置类上加@EnableTransactionManagement
-
 
 
 

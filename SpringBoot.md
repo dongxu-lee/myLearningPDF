@@ -5,9 +5,8 @@
 1. [https://github.com/dongxu-lee/boot_Spring](https://github.com/dongxu-lee/boot_Spring)
 
 文档地址：
-1. github文档地址：[123](123)
-2. 语雀文档地址：[123](123)
-
+1. github文档地址：[https://github.com/dongxu-lee/myLearningPDF/blob/main/SpringBoot.md](https://github.com/dongxu-lee/myLearningPDF/blob/main/SpringBoot.md)
+2. 语雀文档地址：[https://www.yuque.com/bailihang-3fszp/bkgbrq/trv8is](https://www.yuque.com/bailihang-3fszp/bkgbrq/trv8is)
 
 ## 第一部分 SpringBoot基础回顾
 ### 1.1 约定优于配置

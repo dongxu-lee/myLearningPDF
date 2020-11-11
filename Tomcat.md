@@ -2,11 +2,11 @@
 
 ### 代码及文档地址 
 代码地址：
-1. [123](123)
+1. [https://github.com/dongxu-lee/Minicat](https://github.com/dongxu-lee/Minicat)
 
 文档地址：
-1. github文档地址：[123](123)
-2. 语雀文档地址：[123](123)
+1. github文档地址：[https://github.com/dongxu-lee/myLearningPDF/blob/main/Tomcat.md](https://github.com/dongxu-lee/myLearningPDF/blob/main/Tomcat.md)
+2. 语雀文档地址：[https://www.yuque.com/bailihang-3fszp/bkgbrq/im3ez5](https://www.yuque.com/bailihang-3fszp/bkgbrq/im3ez5)
 
 
 ## 第一部分 Tomcat高级使用及其原理剖析
@@ -149,30 +149,63 @@ path：Web应用的Context路径.
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ## 第二部分 Tomcat源码剖析及调优
-### 2.1 
+### 2.1 手写迷你版Tomcat
+见代码地址
+
+### 2.2 Tomcat请求处理流程
+![在这里插入图片描述](https://cdn.nlark.com/yuque/0/2020/png/2739510/1605079119024-a8d11f00-bb72-43a2-a97b-d61dffd0259d.png)
+
+### 2.3 Tomcat对HTTPS的支持
+1. 使用JDK的keytool工具生成免费的秘钥库文件
+~~~
+keytool -genkey -alias mykey -keyalg RSA -keystore mykey.keystore
+~~~
+注意：填写名字与姓氏时，要填写域名
+
+2. 配置conf/server.xml
+~~~xml
+<Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol"
+	maxThreads="150" schema="https" secure="true" SSLEnabled="true">
+	<SSLHostConfig>
+		<Certificate certificateKeystoreFile="/Users/tdky/workspace/server/apache-tomcat-8.0.50/conf/mykey.keystore" certificateKeystorePassword="mykey" type="RSA" />
+	</SSLHostConfig>
+</Connector>
+~~~
+
+### 2.4 Tomcat性能优化--JVM调优
+参数     | 参数作用  |   优化建议
+-------- | ----- | --------
+-server  | 启动Server，以服务端模式运行 | 服务端模式建议开启
+-Xms | 最小堆内存 | 建议和-Xmx相同
+-Xmx | 最大堆内存 | 建议可以内存80%
+-XX:MetaspaceSize | 元空间初始值
+-XX:MaxMetaspaceSize | 元空间最大内存 | 默认无限
+-XX:NewRatio | 年轻代与老年代比值，默认为2 | 不需要改
+-XX:SurvivorRatio | Eden区与Survivor区比值，默认为8 | 不需要改
+
+Catalina.bat/.sh配置：
+~~~
+JAVA_OPTS="-server -Xms=2048m -Xmx=2048m -XX:MetaspaceRatio=256m -XX:MaxMetaspaceRatio=512m"
+~~~
+
+### 2.5 Tomcat性能优化--GC调优
+~~~
+## 对于老年代，使用CMS。启用该选项后，自动使用parNewGC作为新生代收集器
+JAVA_OPTS="-XX:+UseConcMarkSweepGC"
+~~~
+
+### 2.6 Tomcat性能优化--Tomcat自身调优
+ - 调整Tomcat线程池
+ - 调整连接器
+ - 禁用AJP连接器
+ - 调整IO模式
+ 
+    Tomcat8之前用的BIO，不适合高并发；8以后使用NIO
+    
+    需要高并发或性能瓶颈时，可以尝试APR模式
+ - 动静分离
+    静态资源交给Nginx
 
 
 
